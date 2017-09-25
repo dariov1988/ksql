@@ -34,6 +34,7 @@ import io.confluent.ksql.parser.tree.StringLiteral;
 import io.confluent.ksql.parser.tree.TableElement;
 import io.confluent.ksql.rest.entity.SchemaMapper;
 import io.confluent.ksql.rest.entity.ServerInfo;
+import io.confluent.ksql.rest.server.CORSResponseFilter;
 import io.confluent.ksql.rest.server.computation.Command;
 import io.confluent.ksql.rest.server.computation.CommandId;
 import io.confluent.ksql.rest.server.computation.CommandIdAssigner;
@@ -120,6 +121,7 @@ public class KsqlRestApplication extends Application<KsqlRestConfig> {
 
   @Override
   public void setupResources(Configurable<?> config, KsqlRestConfig appConfig) {
+    config.register(CORSResponseFilter.class);
     config.register(serverInfoResource);
     config.register(statusResource);
     config.register(ksqlResource);
@@ -213,8 +215,8 @@ public class KsqlRestApplication extends Application<KsqlRestConfig> {
     try {
       short replicationFactor = 1;
       if(restConfig.getOriginals().containsKey(KsqlConfig.DEFAULT_SINK_NUMBER_OF_REPLICATIONS)) {
-        replicationFactor = Short.parseShort(restConfig.getOriginals()
-                                                     .get(KsqlConfig.DEFAULT_SINK_NUMBER_OF_REPLICATIONS).toString());
+        replicationFactor = Short.parseShort(restConfig.getOriginals().get
+            (KsqlConfig.DEFAULT_SINK_NUMBER_OF_REPLICATIONS).toString());
       }
       client.createTopic(commandTopic, 1, replicationFactor);
     } catch (KafkaTopicException e) {
